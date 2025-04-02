@@ -1,7 +1,6 @@
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { create } from 'zustand';
+import { toast } from 'sonner';
 
 interface User {
   id: string;
@@ -9,41 +8,32 @@ interface User {
   fullName: string;
 }
 
-interface AuthContextType {
+interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (fullName: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  initialize: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
-
-  // Check if user is already logged in from localStorage
-  useEffect(() => {
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: null,
+  isLoading: true,
+  isAuthenticated: false,
+  
+  initialize: () => {
+    // Check if user is already logged in from localStorage
     const storedUser = localStorage.getItem("travelai_user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      set({ user: JSON.parse(storedUser), isAuthenticated: true });
     }
-    setIsLoading(false);
-  }, []);
-
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
+    set({ isLoading: false });
+  },
+  
+  login: async (email: string, password: string) => {
+    set({ isLoading: true });
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -56,23 +46,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           fullName: email.split('@')[0] // Use part of email as name for demo
         };
         
-        setUser(userData);
+        set({ user: userData, isAuthenticated: true });
         localStorage.setItem("travelai_user", JSON.stringify(userData));
         toast.success("Successfully logged in!");
-        navigate("/trips");
+        return Promise.resolve();
       } else {
         throw new Error("Invalid credentials");
       }
     } catch (error) {
       toast.error("Login failed: " + (error instanceof Error ? error.message : "Unknown error"));
-      throw error;
+      return Promise.reject(error);
     } finally {
-      setIsLoading(false);
+      set({ isLoading: false });
     }
-  };
-
-  const signup = async (fullName: string, email: string, password: string) => {
-    setIsLoading(true);
+  },
+  
+  signup: async (fullName: string, email: string, password: string) => {
+    set({ isLoading: true });
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -85,40 +75,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           fullName
         };
         
-        setUser(userData);
+        set({ user: userData, isAuthenticated: true });
         localStorage.setItem("travelai_user", JSON.stringify(userData));
         toast.success("Account created successfully!");
-        navigate("/trips");
+        return Promise.resolve();
       } else {
         throw new Error("Please fill in all fields");
       }
     } catch (error) {
       toast.error("Signup failed: " + (error instanceof Error ? error.message : "Unknown error"));
-      throw error;
+      return Promise.reject(error);
     } finally {
-      setIsLoading(false);
+      set({ isLoading: false });
     }
-  };
-
-  const logout = () => {
-    setUser(null);
+  },
+  
+  logout: () => {
+    set({ user: null, isAuthenticated: false });
     localStorage.removeItem("travelai_user");
     toast.success("You have been logged out");
-    navigate("/");
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        isAuthenticated: !!user,
-        login,
-        signup,
-        logout
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  }
+}));

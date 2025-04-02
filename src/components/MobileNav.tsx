@@ -2,13 +2,13 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Home, Map, User, Plus, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { toast } from "sonner";
 
 export function MobileNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuthStore();
   
   const isActive = (path: string) => location.pathname === path;
   

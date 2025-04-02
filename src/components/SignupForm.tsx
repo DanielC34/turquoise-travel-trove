@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 interface SignupFormProps {
   onSuccess: () => void;
@@ -15,7 +16,8 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { signup, isLoading } = useAuth();
+  const { signup, isLoading } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,8 +30,9 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     try {
       await signup(fullName, email, password);
       onSuccess();
+      navigate("/trips");
     } catch (error) {
-      // Error is handled in the auth context
+      // Error is handled in the auth store
     }
   };
 
