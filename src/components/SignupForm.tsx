@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 interface SignupFormProps {
   onSuccess: () => void;
@@ -14,7 +15,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { signup, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,18 +25,12 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       return;
     }
     
-    setIsLoading(true);
-    
-    // Simulate signup API call
-    setTimeout(() => {
-      setIsLoading(false);
-      if (fullName && email && password) {
-        toast.success("Account created successfully!");
-        onSuccess();
-      } else {
-        toast.error("Please fill in all fields");
-      }
-    }, 1500);
+    try {
+      await signup(fullName, email, password);
+      onSuccess();
+    } catch (error) {
+      // Error is handled in the auth context
+    }
   };
 
   return (

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -13,22 +13,17 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     
-    // Simulate login API call
-    setTimeout(() => {
-      setIsLoading(false);
-      if (email && password) {
-        toast.success("Successfully logged in!");
-        onSuccess();
-      } else {
-        toast.error("Please fill in all fields");
-      }
-    }, 1500);
+    try {
+      await login(email, password);
+      onSuccess();
+    } catch (error) {
+      // Error is handled in the auth context
+    }
   };
 
   return (

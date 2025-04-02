@@ -8,11 +8,23 @@ import { AuthModal } from "@/components/AuthModal";
 import { TripBuilder } from "@/components/TripBuilder";
 import { Footer } from "@/components/Footer";
 import { MapPin, PlayCircle, ArrowRight, ChevronDown } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 const Index = () => {
   const navigate = useNavigate();
   const [showTripBuilder, setShowTripBuilder] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const { isAuthenticated } = useAuth();
+  
+  const handleTripBuilderClick = () => {
+    if (isAuthenticated) {
+      setShowTripBuilder(true);
+    } else {
+      toast.info("Please log in or create an account to build a trip");
+      setShowAuthModal(true);
+    }
+  };
   
   const handleTripComplete = (tripData: any) => {
     setShowTripBuilder(false);
@@ -41,7 +53,7 @@ const Index = () => {
             <div className="pt-5 flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 className="bg-turquoise-500 hover:bg-turquoise-600 text-white py-6 px-8 text-lg font-medium hover-scale turquoise-shadow animate-fade-in"
-                onClick={() => setShowTripBuilder(true)}
+                onClick={handleTripBuilderClick}
               >
                 Build My Trip <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -126,19 +138,30 @@ const Index = () => {
               Join thousands of travelers who have discovered the power of AI-assisted travel planning.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                className="bg-turquoise-500 hover:bg-turquoise-600 text-white text-lg hover-scale turquoise-shadow"
-                onClick={() => setShowAuthModal(true)}
-              >
-                Create Free Account
-              </Button>
-              <Button
-                variant="outline"
-                className="border-turquoise-200 text-turquoise-700 hover:bg-turquoise-50 text-lg hover-scale"
-                onClick={() => setShowTripBuilder(true)}
-              >
-                Try Without Account
-              </Button>
+              {isAuthenticated ? (
+                <Button
+                  className="bg-turquoise-500 hover:bg-turquoise-600 text-white text-lg hover-scale turquoise-shadow"
+                  onClick={handleTripBuilderClick}
+                >
+                  Start Planning Now
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    className="bg-turquoise-500 hover:bg-turquoise-600 text-white text-lg hover-scale turquoise-shadow"
+                    onClick={() => setShowAuthModal(true)}
+                  >
+                    Create Free Account
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-turquoise-200 text-turquoise-700 hover:bg-turquoise-50 text-lg hover-scale"
+                    onClick={() => setShowAuthModal(true)}
+                  >
+                    Log In To Account
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
