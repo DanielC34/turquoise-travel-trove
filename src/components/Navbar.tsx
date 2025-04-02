@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AuthModal } from "./AuthModal";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function Navbar() {
@@ -25,7 +25,7 @@ export function Navbar() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuthStore();
 
   const handleNavigate = (path: string) => {
     navigate(path);

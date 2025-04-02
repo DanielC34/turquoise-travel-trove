@@ -8,14 +8,14 @@ import { AuthModal } from "@/components/AuthModal";
 import { TripBuilder } from "@/components/TripBuilder";
 import { Footer } from "@/components/Footer";
 import { MapPin, PlayCircle, ArrowRight, ChevronDown } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { toast } from "sonner";
 
 const Index = () => {
   const navigate = useNavigate();
   const [showTripBuilder, setShowTripBuilder] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthStore();
   
   const handleTripBuilderClick = () => {
     if (isAuthenticated) {
